@@ -1,0 +1,49 @@
+---
+- name: Apache VM installation and configuration
+  hosts: "{{ target_ns }}-{{ (vm | from_yaml)[0].name }}"
+  gather_facts: true
+  become: true
+  tasks:
+
+  - name: Install Apache packages
+    ansible.builtin.dnf:
+      state: present
+      name:
+        - httpd
+        - firewalld
+        - php
+        - php-mysqli
+
+  - name: Ensure firewalld is running
+    ansible.builtin.service:
+      name: firewalld
+      state: started
+      enabled: yes
+
+  - name: Open Firewall for Apache use
+    ansible.builtin.firewalld:
+      service: "{{ item }}"
+      permanent: yes
+      state: enabled
+      immediate: yes
+    with_items:
+    - http
+
+  - name: Set httpd_can_network_connect_db flag on
+    ansible.posix.seboolean:
+      name: httpd_can_network_connect_db
+      state: true
+      persistent: true
+
+  - name: Set up web page
+    ansible.builtin.template:
+      src: "{{ playbook_dir }}/../templates/index.php.j2"
+      dest: /var/www/html/index.php
+      mode: 0644
+    when: ( mysql_root_password is defined )
+
+  - name: Ensure Apache is running at boot
+    ansible.builtin.service:
+      name: httpd
+      enabled: yes
+      state: started

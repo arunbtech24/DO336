@@ -1,0 +1,28 @@
+- name: Create VM network
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Create vm-private-net network attachment definition
+      redhat.openshift.k8s:
+        state: present
+        namespace: "default"
+        inline:
+          apiVersion: k8s.cni.cncf.io/v1
+          kind: NetworkAttachmentDefinition
+          metadata:
+            annotations:
+              k8s.v1.cni.cncf.io/resourceName: bridge.network.kubevirt.io/br0
+            name: vm-private-net
+            namespace: default
+          spec:
+            config: |
+              {
+                "name":"vm-private-net",
+                "type":"bridge",
+                "cniVersion":"0.3.1",
+                "bridge":"br0",
+                "macspoofchk":true,
+                "ipam":{},
+                "preserveDefaultVlan":false
+              }

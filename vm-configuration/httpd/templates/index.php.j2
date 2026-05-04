@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h1>Famous Quotes</h1>
+<?php
+$servername = "{{ (vm | from_yaml)[1].ip }}";
+$username = "cloud-user";
+$password = "{{ mysql_root_password }}";
+$dbname = "famous_quotes";
+$port = "3306";
+ 
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname, $port);
+// Check connection
+if ($conn->connect_error) {
+  die("Connection failed: " . $conn->connect_error);
+}
+ 
+$quote = "SELECT * FROM author_quotes";
+$result = $conn->query($quote);
+ 
+if ($result->num_rows > 0) {
+  while($row = $result->fetch_assoc()) {
+    echo "The author " . $row["author"]. " said '". $row["quote"]. "'\n";
+    echo "<br><br>\n";
+  }
+} else {
+  echo "0 results";
+}
+$conn->close();
+?>
+</body>
+</html>
