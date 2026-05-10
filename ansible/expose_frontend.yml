@@ -1,0 +1,43 @@
+- name: Expose the frontend
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    - name: Import task to create a fact from the survey
+      ansible.builtin.include_tasks: tasks/create_fact.yml
+
+    - name: Create service
+      loop: "{{ vms }}"
+      redhat.openshift.k8s:
+        state: present
+        namespace: "{{ target_ns }}"
+        inline:
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: front-service
+          spec:
+            ports:
+              - port: 80
+                targetPort: 80
+            selector:
+              vm.kubevirt.io/name: "{{ item.name }}"
+      when: item.name == 'frontend'
+
+    - name: Create route
+      redhat.openshift.k8s:
+        state: present
+        namespace: "{{ target_ns }}"
+        inline:
+          apiVersion: route.openshift.io/v1
+          kind: Route
+          metadata:
+            name: front-route
+          spec:
+            host: "http://front-famous-quotes.apps.ocp4.example.com"
+            port:
+              targetPort: 80
+            to:
+              kind: Service
+              name: front-service

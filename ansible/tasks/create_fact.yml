@@ -1,0 +1,10 @@
+---
+- name: Create a fact to convert the variable from survey to a dictionary
+  ansible.builtin.set_fact:
+    vms: >-
+      [{% for line in vm_survey.split('\n') %}
+        {
+          "name": "{{ line.split()[0] }}",
+          "ip": "{{ line.split()[1] }}"
+        }{% if not loop.last %}, {% endif %}
+      {% endfor %}]

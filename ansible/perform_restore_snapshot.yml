@@ -1,0 +1,12 @@
+- name: Restore the vm from a snapshot
+  hosts: all
+  gather_facts: false
+
+  tasks:
+
+    - name: Import task to create a fact from the survey
+      ansible.builtin.include_tasks: tasks/create_fact.yml
+
+    - name: Create the snapshot from a task
+      ansible.builtin.include_tasks: tasks/restore_snapshot.yml
+      loop: "{{ vms }}"

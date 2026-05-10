@@ -1,0 +1,48 @@
+---
+- name: Obtain the details about the VirtualMachine Snapshot for vm1
+  kubernetes.core.k8s_info:
+    api_version: snapshot.kubevirt.io/v1alpha1
+    kind: VirtualMachineSnapshot
+    namespace: "{{ target_ns }}"
+    name: "{{ item.name }}-snapshot-aap"
+  register: vm_snapshot_details
+
+- name: Stop the Virtual Machine vm1
+  redhat.openshift_virtualization.kubevirt_vm:
+    name: "{{ item.name }}"
+    namespace: "{{ target_ns }}"
+    running: false
+    wait: true
+
+- name: Create Restore Object to restore the VM from the snapshot
+  redhat.openshift.k8s:
+    state: present
+    definition:
+      apiVersion: snapshot.kubevirt.io/v1alpha1
+      kind: VirtualMachineRestore
+      metadata:
+        generateName: "{{ item.name }}-restore-"
+        namespace: "{{ target_ns }}"
+        ownerReferences:
+          - apiVersion: kubevirt.io/v1
+            blockOwnerDeletion: false
+            kind: VirtualMachine
+            name: "{{ item.name }}"
+            uid: "{{ vm_snapshot_details.resources[0].metadata.ownerReferences[0].uid }}"
+      spec:
+        target:
+          apiGroup: kubevirt.io
+          kind: VirtualMachine
+          name: "{{ item.name }}"
+        virtualMachineSnapshotName: "{{ vm_snapshot_details.resources[0].metadata.name }}"
+    wait: true
+    wait_timeout: 600
+    wait_condition:
+      type: Ready
+
+- name: Start the Virtual Machine vm1
+  redhat.openshift_virtualization.kubevirt_vm:
+    name: "{{ item.name }}"
+    namespace: "{{ target_ns }}"
+    running: true
+    wait: true

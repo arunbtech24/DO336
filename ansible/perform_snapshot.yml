@@ -1,0 +1,12 @@
+---
+- name: Perform a snapshot for the running VM
+  hosts: all
+
+  tasks:
+
+    - name: Import task to create a fact from the survey
+      ansible.builtin.include_tasks: tasks/create_fact.yml
+
+    - name: Create the snapshot from a task
+      ansible.builtin.include_tasks: tasks/create_snapshot.yml
+      loop: "{{ vms }}"

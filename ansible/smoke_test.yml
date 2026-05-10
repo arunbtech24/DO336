@@ -1,0 +1,17 @@
+---
+- name: Smoke test for the application
+  hosts: all
+  gather_facts: false
+  tasks:
+
+    - name: Verify the app is working
+      ansible.builtin.uri:
+        url: http://front-famous-quotes.apps.ocp4.example.com
+        method: GET
+        return_content: true
+      register: url_status
+      retries: 10
+      delay: 5
+      until:
+        - url_status['status'] == 200
+        - "'The author William Shakespeare' in url_status['content']"

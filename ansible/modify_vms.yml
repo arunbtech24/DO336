@@ -1,0 +1,58 @@
+- name: Modify VMs
+  hosts: all
+
+  tasks:
+
+    - name: Import task to create a fact from the survey
+      ansible.builtin.include_tasks: tasks/create_fact.yml
+
+    - name: Wait until the VMs stop
+      loop: "{{ vms }}"
+      redhat.openshift_virtualization.kubevirt_vm:
+        name: "{{ item.name }}"
+        namespace: "{{ target_ns }}"
+        running: false
+      register: vm_status
+      until: vm_status.result.status.printableStatus == "Stopped"
+      retries: 60
+      delay: 5
+
+    - name: Modify the VM
+      loop: "{{ vms }}"
+      redhat.openshift_virtualization.kubevirt_vm:
+        state: present
+        name: "{{ item.name }}"
+        namespace: "{{ target_ns }}"
+        spec:
+          domain:
+            cpu:
+              cores: "{{ cpu }}" 
+            memory:
+              guest: "{{ memory }}"
+
+    - name: Wait until the VirtualMachine is started
+      loop: "{{ vms }}"
+      redhat.openshift_virtualization.kubevirt_vm:
+        name: "{{ item.name }}"
+        namespace: "{{ target_ns }}"
+        running: true
+      register: vm_status
+      until: vm_status.result.status.printableStatus == "Running"
+      retries: 60
+      delay: 5
+
+    - name: Wait for virtual machine IPs to be populated
+      kubernetes.core.k8s_info:
+        api_version: kubevirt.io/v1
+        kind: VirtualMachineInstance
+        name: "{{ item.name }}"
+        namespace: "{{ target_ns }}"
+      register: vmi
+      retries: 60
+      delay: 10
+      until: (vmi.resources[0].status.interfaces[0]['ipAddress'] | default('')) | length > 0
+      loop: "{{ vms }}"
+
+    - name: Pause for 2 minutes to ensure that VMs are up
+      ansible.builtin.pause:
+        minutes: 2

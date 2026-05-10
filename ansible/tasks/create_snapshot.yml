@@ -1,0 +1,30 @@
+---
+- name: Obtain the VirtualMachine details
+  redhat.openshift_virtualization.kubevirt_vm_info:
+    namespace: "{{ target_ns }}"
+    name: "{{ item.name }}"
+  register: vm_details
+
+- name: Create the Snapshot
+  redhat.openshift.k8s:
+    state: present
+    definition:
+      apiVersion: snapshot.kubevirt.io/v1alpha1
+      kind: VirtualMachineSnapshot
+      metadata:
+        name: "{{ item.name }}-snapshot-aap"
+        namespace: "{{ target_ns }}"
+        ownerReferences:
+          - apiVersion: kubevirt.io/v1
+            blockOwnerDeletion: false
+            kind: VirtualMachine
+            name: "{{ item.name }}"
+            uid: "{{ vm_details.resources[0].metadata.uid }}"
+      spec:
+        source:
+          apiGroup: kubevirt.io
+          kind: VirtualMachine
+          name: "{{ item.name }}"
+    wait: true
+    wait_condition:
+      type: Ready

@@ -1,0 +1,38 @@
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Add the RHEL9 base packages repository
+      ansible.builtin.yum_repository:
+        name: rhel9-base-additional
+        description: RHEL9 BaseOS packages
+        baseurl: http://content.example.com/rhel9.4/x86_64/rhel9-additional/rhel-9-for-x86_64-baseos-rpms
+        gpgcheck: false
+        enabled: true
+
+    - name: Add the RHEL9 appstream packages repository
+      ansible.builtin.yum_repository:
+        name: rhel9-appstream-additional
+        description: RHEL9 AppStream packages
+        baseurl: http://content.example.com/rhel9.4/x86_64/rhel9-additional/rhel-9-for-x86_64-appstream-rpms
+        gpgcheck: false
+        enabled: true
+
+    - name: Upgrade all packages to the latest version
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+
+    - name: Update the version of the app
+      ansible.builtin.lineinfile:
+        path: /var/www/html/index.php
+        search_string: 'v1'
+        line: "<h1>Famous Quotes v2</h1>"
+      when: inventory_hostname == 'frontend'
+
+    - name: Stop mysql server to force a fail
+      ansible.builtin.service:
+        name: mariadb
+        state: stopped
+      tags: force_fail
+      when: inventory_hostname == 'database'

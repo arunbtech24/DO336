@@ -1,0 +1,104 @@
+---
+- name: Apache and MariaDB installation and configuration
+  hosts: all
+  gather_facts: true
+  become: true
+  tasks:
+
+    - name: Apply only for the frontend
+      block:
+        - name: Install Apache packages
+          ansible.builtin.dnf:
+            state: present
+            name:
+              - httpd
+              - firewalld
+              - php
+              - php-mysqli
+
+        - name: Ensure firewalld is running
+          ansible.builtin.service:
+            name: firewalld
+            state: started
+            enabled: yes
+
+        - name: Open Firewall for Apache use
+          ansible.builtin.firewalld:
+            service: "{{ item }}"
+            permanent: yes
+            state: enabled
+            immediate: yes
+          with_items:
+          - http
+
+        - name: Set httpd_can_network_connect_db flag on
+          ansible.posix.seboolean:
+            name: httpd_can_network_connect_db
+            state: true
+            persistent: true
+
+        - name: Set up web page
+          ansible.builtin.template:
+            src: templates/index.php.j2
+            dest: /var/www/html/index.php
+            mode: 0644
+          when: ( mysql_root_password is defined )
+
+        - name: Ensure Apache is running at boot
+          ansible.builtin.service:
+            name: httpd
+            enabled: yes
+            state: started
+      when: inventory_hostname == 'frontend'
+
+    - name: Apply only for the database
+      block:
+        - name: Install MySQL packages
+          ansible.builtin.dnf:
+            state: present
+            name:
+              - mariadb-server
+              - firewalld
+
+        - name: Ensure firewalld is running
+          ansible.builtin.service:
+            name: firewalld
+            state: started
+            enabled: yes
+
+        - name: Open Firewall for MySQL use
+          ansible.builtin.firewalld:
+            service: mysql
+            permanent: yes
+            state: enabled
+            immediate: yes
+
+        - name: Ensure MySQL is running at boot
+          ansible.builtin.service:
+            name: mariadb
+            enabled: yes
+            state: started
+
+        - name: Set up SQL commands
+          ansible.builtin.template:
+            src: files/prime.sql
+            dest: /tmp/prime.sql
+            mode: 400
+          when: mysql_root_password is defined
+
+        - name: Set up root account
+          ansible.builtin.shell: mysql </tmp/prime.sql
+          when: mysql_root_password is defined
+
+        - name: Set up database
+          ansible.builtin.template:
+            src: files/database.sql
+            dest: /tmp/database.sql
+            mode: 400
+          when: mysql_root_password is defined
+
+        - name: Import database
+          ansible.builtin.shell: mysql -ucloud-user -p"{{ mysql_root_password }}" </tmp/database.sql
+          when: mysql_root_password is defined
+
+      when: inventory_hostname == 'database'

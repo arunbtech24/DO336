@@ -1,0 +1,20 @@
+- name: Add repositories
+  hosts: all
+  become: true  # Run tasks with root privileges
+  tasks:
+
+    - name: Add the RHEL9 base packages repository
+      ansible.builtin.yum_repository:
+        name: rhel9-base
+        description: RHEL9 BaseOS packages
+        baseurl: http://content.example.com/rhel9.4/x86_64/dvd/BaseOS
+        gpgcheck: false
+        enabled: true
+
+    - name: Add the RHEL9 appstream packages repository
+      ansible.builtin.yum_repository:
+        name: rhel9-appstream
+        description: RHEL9 AppStream packages
+        baseurl: http://content.example.com/rhel9.4/x86_64/dvd/AppStream
+        gpgcheck: false
+        enabled: true
