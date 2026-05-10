@@ -35,7 +35,7 @@
           metadata:
             name: front-route
           spec:
-            host: "http://front-famous-quotes.apps.ocp4.example.com"
+            host: "front-famous-quotes.apps.ocp4.example.com"
             port:
               targetPort: 80
             to:
