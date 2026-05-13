@@ -1,0 +1,180 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachineInstance
+metadata:
+  annotations:
+    kubevirt.io/latest-observed-api-version: v1
+    kubevirt.io/storage-observed-api-version: v1
+    kubevirt.io/vm-generation: "2"
+  creationTimestamp: "2026-05-13T07:57:08Z"
+  finalizers:
+  - kubevirt.io/virtualMachineControllerFinalize
+  - foregroundDeleteVirtualMachine
+  generation: 11
+  labels:
+    app: rhel9-web
+    kubevirt.io/nodeName: master01
+  name: rhel9-web
+  namespace: vms-import
+  ownerReferences:
+  - apiVersion: kubevirt.io/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: VirtualMachine
+    name: rhel9-web
+    uid: 2a2d34c8-6df2-475d-91ee-9a304d9bae8f
+  resourceVersion: "399414"
+  uid: 9af6515a-6a89-46a1-b00d-633f39a9dd21
+spec:
+  architecture: amd64
+  domain:
+    cpu:
+      cores: 1
+      maxSockets: 4
+      model: host-model
+      sockets: 1
+    devices:
+      disks:
+      - disk:
+          bus: virtio
+        name: vol-0
+      - disk:
+          bus: virtio
+        name: vol-1
+      inputs:
+      - bus: virtio
+        name: tablet
+        type: tablet
+      interfaces:
+      - macAddress: "02:26:43:00:00:00"
+        masquerade: {}
+        model: virtio
+        name: net-0
+      - bridge: {}
+        macAddress: "02:26:43:00:00:01"
+        model: virtio
+        name: net-1
+    features:
+      acpi:
+        enabled: true
+    firmware:
+      bootloader:
+        efi:
+          secureBoot: false
+      serial: 7e941eca329771d2a0b604153a501870eb23
+      uuid: a9ce843a-e7e5-5e3d-86a0-7e85d0242d6d
+    machine:
+      type: q35
+    memory:
+      guest: 2Gi
+      maxGuest: 8Gi
+    resources:
+      requests:
+        memory: 2Gi
+  evictionStrategy: None
+  networks:
+  - name: net-0
+    pod: {}
+  - multus:
+      networkName: default/vm-private-net
+    name: net-1
+  volumes:
+  - name: vol-0
+    persistentVolumeClaim:
+      claimName: rhel9-web-import-7e941eca329771d2a0b604153a501870eb23-88gjg
+  - name: vol-1
+    persistentVolumeClaim:
+      claimName: rhel9-web-import-7e941eca329771d2a0b604153a501870eb23-nq2z7
+status:
+  activePods:
+    e740b257-eda4-4578-b884-ccd75f3db8d0: master01
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-05-13T07:57:14Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: null
+    status: "True"
+    type: LiveMigratable
+  - lastProbeTime: "2026-05-13T07:57:56Z"
+    lastTransitionTime: null
+    status: "True"
+    type: AgentConnected
+  currentCPUTopology:
+    cores: 1
+    sockets: 1
+    threads: 1
+  guestOSInfo:
+    id: rhel
+    kernelRelease: 5.14.0-362.24.1.el9_3.x86_64
+    kernelVersion: '#1 SMP PREEMPT_DYNAMIC Thu Feb 15 07:18:13 EST 2024'
+    machine: x86_64
+    name: Red Hat Enterprise Linux
+    prettyName: Red Hat Enterprise Linux 9.3 (Plow)
+    version: 9.3 (Plow)
+    versionId: "9.3"
+  interfaces:
+  - infoSource: domain, guest-agent
+    interfaceName: enp1s0
+    ipAddress: 10.8.0.138
+    ipAddresses:
+    - 10.8.0.138
+    mac: "02:26:43:00:00:00"
+    name: net-0
+    queueCount: 1
+  - infoSource: domain, guest-agent, multus-status
+    interfaceName: enp2s0
+    ipAddress: 192.168.20.100
+    ipAddresses:
+    - 192.168.20.100
+    - fe80::5a7d:8baa:3a3a:507f
+    mac: "02:26:43:00:00:01"
+    name: net-1
+    queueCount: 1
+  launcherContainerImageVersion: registry.redhat.io/container-native-virtualization/virt-launcher-rhel9@sha256:7fef3baafefa877f08cfed52b5b391af5eea8d0eda422802c75dfc63c6c56d72
+  machine:
+    type: pc-q35-rhel9.4.0
+  memory:
+    guestAtBoot: 2Gi
+    guestCurrent: 2Gi
+    guestRequested: 2Gi
+  migrationMethod: LiveMigration
+  migrationTransport: Unix
+  nodeName: master01
+  phase: Running
+  phaseTransitionTimestamps:
+  - phase: Pending
+    phaseTransitionTimestamp: "2026-05-13T07:57:08Z"
+  - phase: Scheduling
+    phaseTransitionTimestamp: "2026-05-13T07:57:08Z"
+  - phase: Scheduled
+    phaseTransitionTimestamp: "2026-05-13T07:57:14Z"
+  - phase: Running
+    phaseTransitionTimestamp: "2026-05-13T07:57:16Z"
+  qosClass: Burstable
+  runtimeUser: 107
+  selinuxContext: system_u:object_r:container_file_t:s0:c257,c505
+  virtualMachineRevisionName: revision-start-vm-2a2d34c8-6df2-475d-91ee-9a304d9bae8f-2
+  volumeStatus:
+  - name: vol-0
+    persistentVolumeClaimInfo:
+      accessModes:
+      - ReadWriteMany
+      capacity:
+        storage: 4Gi
+      filesystemOverhead: "0"
+      requests:
+        storage: "4294967296"
+      volumeMode: Block
+    target: vda
+  - name: vol-1
+    persistentVolumeClaimInfo:
+      accessModes:
+      - ReadWriteMany
+      capacity:
+        storage: 1Gi
+      filesystemOverhead: "0"
+      requests:
+        storage: "1073741824"
+      volumeMode: Block
+    target: vdb

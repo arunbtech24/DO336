@@ -1,0 +1,44 @@
+apiVersion: forklift.konveyor.io/v1beta1
+kind: Provider
+metadata:
+  creationTimestamp: "2026-05-13T07:47:02Z"
+  finalizers:
+  - forklift/ova-provider
+  generation: 1
+  name: vsphere-ova
+  namespace: openshift-mtv
+  resourceVersion: "385534"
+  uid: 3a868114-18f9-4b05-9956-31ac5bb4ce0e
+spec:
+  secret:
+    name: vsphere-ova-2z6kr
+    namespace: openshift-mtv
+  type: ova
+  url: utility.lab.example.com:/exports-ocp4/ova
+status:
+  conditions:
+  - category: Required
+    lastTransitionTime: "2026-05-13T07:47:07Z"
+    message: Connection test, succeeded.
+    reason: Tested
+    status: "True"
+    type: ConnectionTestSucceeded
+  - category: Advisory
+    lastTransitionTime: "2026-05-13T07:47:07Z"
+    message: Validation has been completed.
+    reason: Completed
+    status: "True"
+    type: Validated
+  - category: Required
+    lastTransitionTime: "2026-05-13T07:47:10Z"
+    message: The inventory has been loaded.
+    reason: Completed
+    status: "True"
+    type: InventoryCreated
+  - category: Required
+    lastTransitionTime: "2026-05-13T07:47:10Z"
+    message: The provider is ready.
+    status: "True"
+    type: Ready
+  observedGeneration: 1
+  phase: Ready

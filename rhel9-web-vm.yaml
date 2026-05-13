@@ -1,0 +1,103 @@
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  annotations:
+    kubemacpool.io/transaction-timestamp: "2026-05-13T07:57:08.370891836Z"
+    kubevirt.io/latest-observed-api-version: v1
+    kubevirt.io/storage-observed-api-version: v1
+  creationTimestamp: "2026-05-13T07:56:39Z"
+  finalizers:
+  - kubevirt.io/virtualMachineControllerFinalize
+  generation: 2
+  labels:
+    migration: c05d2bf7-82e6-4797-bfca-8659bb1ab973
+    plan: 2fc533e4-6702-4616-ad37-3357560c5bbd
+    vmID: 7e941eca329771d2a0b604153a501870eb23
+  name: rhel9-web
+  namespace: vms-import
+  resourceVersion: "399413"
+  uid: 2a2d34c8-6df2-475d-91ee-9a304d9bae8f
+spec:
+  running: true
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: rhel9-web
+    spec:
+      architecture: amd64
+      domain:
+        cpu:
+          cores: 1
+          sockets: 1
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: vol-0
+          - disk:
+              bus: virtio
+            name: vol-1
+          inputs:
+          - bus: virtio
+            name: tablet
+            type: tablet
+          interfaces:
+          - macAddress: "02:26:43:00:00:00"
+            masquerade: {}
+            model: virtio
+            name: net-0
+          - bridge: {}
+            macAddress: "02:26:43:00:00:01"
+            model: virtio
+            name: net-1
+        firmware:
+          bootloader:
+            efi:
+              secureBoot: false
+          serial: 7e941eca329771d2a0b604153a501870eb23
+        machine:
+          type: q35
+        memory:
+          guest: 2Gi
+        resources:
+          requests:
+            memory: 2Gi
+      networks:
+      - name: net-0
+        pod: {}
+      - multus:
+          networkName: default/vm-private-net
+        name: net-1
+      volumes:
+      - name: vol-0
+        persistentVolumeClaim:
+          claimName: rhel9-web-import-7e941eca329771d2a0b604153a501870eb23-88gjg
+      - name: vol-1
+        persistentVolumeClaim:
+          claimName: rhel9-web-import-7e941eca329771d2a0b604153a501870eb23-nq2z7
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-05-13T07:57:14Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: null
+    status: "True"
+    type: LiveMigratable
+  - lastProbeTime: "2026-05-13T07:57:56Z"
+    lastTransitionTime: null
+    status: "True"
+    type: AgentConnected
+  created: true
+  desiredGeneration: 2
+  observedGeneration: 2
+  printableStatus: Running
+  ready: true
+  runStrategy: Always
+  volumeSnapshotStatuses:
+  - enabled: true
+    name: vol-0
+  - enabled: true
+    name: vol-1
